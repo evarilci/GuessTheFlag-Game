@@ -16,7 +16,18 @@ struct ContentView: View {
     @State private var currentRound = 0
     @State private var maxRound = 9
     
-    @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Monaco", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"].shuffled()
+    @State private var countries = ["Estonia",
+                                    "France",
+                                    "Germany",
+                                    "Ireland",
+                                    "Italy",
+                                    "Monaco",
+                                    "Nigeria",
+                                    "Poland",
+                                    "Russia",
+                                    "Spain",
+                                    "UK",
+                                    "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
     
     var body: some View {
@@ -105,9 +116,9 @@ struct ContentView: View {
     func flagTapped(_ number: Int){
         if number == correctAnswer {
             score += 1
-            scoreTitle = "Correct"
+            scoreTitle = "Correct!"
         } else {
-            scoreTitle = "Wrong! That's the flag of \(number)"
+            scoreTitle = "Wrong! That's the flag of \(number)."
         }
             
         gameOver = currentRound == maxRound
