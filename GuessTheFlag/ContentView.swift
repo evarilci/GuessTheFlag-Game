@@ -7,15 +7,34 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct FlagImage: ViewModifier {
     
+    func body(content: Content) -> some View {
+        content
+            .clipShape(Capsule())
+            .shadow(radius: 8)
+            
+    }
+}
+
+extension View {
+    
+    func flagImageStyle() -> some View {
+        modifier(FlagImage())
+    }
+}
+
+struct ContentView: View {
+    @State private var isCorrect = false
+    @State private var isWrong = false
+    @State private var fadeOutOpacity = false
+    @State private var selectedNumber = 0
     @State private var showingScore = false
     @State private var scoreTitle = ""
     @State private var score = 0
     @State private var gameOver = false
     @State private var currentRound = 0
     @State private var maxRound = 9
-    
     @State private var countries = ["Estonia",
                                     "France",
                                     "Germany",
@@ -56,13 +75,22 @@ struct ContentView: View {
                     }
                     ForEach(0..<3) {number in
                         Button {
-                            flagTapped(number)
+                            
+                            withAnimation {
+                                flagTapped(number)
+                                
+                            }
+                            
+                            
                         } label: {
                             Image(countries[number])
                                 .renderingMode(.original)
-                                .clipShape(Capsule())
-                                .shadow(radius: 8)
+                                .flagImageStyle()
+                                
                         }
+                        .rotation3DEffect(.degrees(self.isCorrect && self.correctAnswer == number ? 360 : 0), axis: (x: 0, y: 1, z:0))
+                        .opacity(self.fadeOutOpacity && !(correctAnswer == number) ? 0.25 : 1)
+                        .rotation3DEffect(.degrees(self.isWrong && self.selectedNumber == number ? 90 : 0), axis: (x:1, y: 0, z: 0))
                     }
                 }
                 
@@ -90,20 +118,20 @@ struct ContentView: View {
             .padding()
         }
         .alert(isPresented: $showingScore) {
-                    if gameOver {
-                        return Alert(title: Text("Game over"),
-                              message:Text("Your score is \(score)"),
-                              dismissButton: .default(Text("Restart")){
-                                self.reset() // reset game here
-                            })
-                    } else {
-                        return Alert(title: Text(scoreTitle),
-                              message:Text("Your score is \(score)"),
-                              dismissButton: .default(Text("Continue")){
-                                self.askQuestion()
-                            })
-                    }
-                }
+            if gameOver {
+                return Alert(title: Text("Game over"),
+                             message:Text("Your score is \(score)"),
+                             dismissButton: .default(Text("Restart")){
+                    self.reset() // reset game here
+                })
+            } else {
+                return Alert(title: Text(scoreTitle),
+                             message:Text("Your score is \(score)"),
+                             dismissButton: .default(Text("Continue")){
+                    self.askQuestion()
+                })
+            }
+        }
     }
     
     func reset() {
@@ -113,14 +141,22 @@ struct ContentView: View {
         currentRound = 0
     }
     
-    func flagTapped(_ number: Int){
+    func flagTapped(_ number: Int) {
+        selectedNumber = number
         if number == correctAnswer {
-            score += 1
-            scoreTitle = "Correct!"
-        } else {
-            scoreTitle = "Wrong! That's the flag of \(number)."
-        }
             
+            withAnimation {
+                score += 1
+                scoreTitle = "Correct!"
+                isCorrect = true
+                fadeOutOpacity = true
+            }
+        } else {
+            scoreTitle = "Wrong! That's the flag of \(countries[number])."
+            fadeOutOpacity = true
+            isWrong = true
+        }
+        
         gameOver = currentRound == maxRound
         // score = 0        // reset this at the "Restart" call
         // currentRound = 0 // reset this at the "Restart" call
@@ -128,12 +164,19 @@ struct ContentView: View {
         if currentRound < maxRound {
             currentRound += 1
         }
-        showingScore = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.showingScore = true
+        }
+       // showingScore = true
+            
     }
     
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+        isCorrect = false
+        fadeOutOpacity = false
+        isWrong = false
     }
     
 }

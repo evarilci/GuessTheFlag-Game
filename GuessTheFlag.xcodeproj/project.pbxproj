@@ -53,9 +53,9 @@
 		E5589D4F289012D900E24F65 /* GuessTheFlag */ = {
 			isa = PBXGroup;
 			children = (
+				E5589D5E2893186900E24F65 /* SplashScreenView.swift */,
 				E5589D50289012D900E24F65 /* GuessTheFlagApp.swift */,
 				E5589D52289012D900E24F65 /* ContentView.swift */,
-				E5589D5E2893186900E24F65 /* SplashScreenView.swift */,
 				E5589D54289012E000E24F65 /* Assets.xcassets */,
 				E5589D56289012E000E24F65 /* Preview Content */,
 			);
